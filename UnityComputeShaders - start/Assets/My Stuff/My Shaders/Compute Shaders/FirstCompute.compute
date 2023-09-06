@@ -1,0 +1,36 @@
+﻿/*
+pragma is used to declare a function that is to be used
+for a spesific purpose within the shader. 
+Compute shaders have kernels and in this case we have named it CSMain
+*/
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+
+/*
+Here we have a rendertexture that we want to use in order to output a color result.
+*/
+RWTexture2D<float4> Result;
+
+/*
+numthreads determines how many threads will be used for each component in a vector3.
+
+*/
+[numthreads(8,8,1)]
+
+/*
+a kernel always takes a single parameter, which is an unsigned vector3 called id.
+SV_DispatchThreadID is a semantic which informs the compiler how the parameter "id" is to be used.
+
+Semantics are used when data is passed between different stages of a shaders pipeline. 
+Semantics tell the shader what to do with the data at new stages.
+*/
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+
+    // using the input vectors x&y components for our texture 2D, we can assign a color.
+    // basically it says "add this vector4 color to my 2D image"
+    Result[id.xy] = float4(1, 0, 0, 0);
+}
