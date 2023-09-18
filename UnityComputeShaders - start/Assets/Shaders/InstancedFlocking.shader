@@ -41,20 +41,36 @@
 
             StructuredBuffer<Boid> boidsBuffer; 
          #endif
+
+         float4x4 create_matrix(float3 pos, float3 dir, float3 up)
+         {
+            float3 zAxis = normalize(dir);
+            float3 xAxis = normalize(cross(up, zAxis));
+            float3 yAxis = normalize(cross(zAxis, xAxis));
+
+            return float4x4(
+                xAxis.x, yAxis.x, zAxis.x, pos.x,
+                xAxis.y, yAxis.y, zAxis.y, pos.y,
+                xAxis.z, yAxis.z, zAxis.z, pos.z,
+                0, 0, 0, 1
+            );
+         }
      
          void vert(inout appdata_full v, out Input data)
         {
             UNITY_INITIALIZE_OUTPUT(Input, data);
 
             #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
-                v.vertex.xyz += _BoidPosition;
+            v.vertex = mul(_Matrix, v.vertex);
+                // v.vertex.xyz += _BoidPosition;
             #endif
         }
 
         void setup()
         {
             #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
-                _BoidPosition = boidsBuffer[unity_InstanceID].position;
+                _Matrix = create_matrix(boidsBuffer[unity_InstanceID].position,
+                boidsBuffer[unity_InstanceID].direction, float3(0,1,0));
             #endif
         }
  

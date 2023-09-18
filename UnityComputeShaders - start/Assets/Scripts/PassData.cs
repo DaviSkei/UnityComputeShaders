@@ -11,9 +11,13 @@ public class PassData : MonoBehaviour
     RenderTexture outputTexture;
 
     int circlesHandle;
+    int clearHandle;
 
     public Color clearColor = new Color();
     public Color circleColor = new Color();
+
+    [Range(0,1)]
+    [SerializeField] float animSpeed = 0.2f;
 
     // Use this for initialization
     void Start()
@@ -31,21 +35,28 @@ public class PassData : MonoBehaviour
     private void InitShader()
     {
         circlesHandle = shader.FindKernel("Circles");
+        clearHandle = shader.FindKernel("Clear");
 
         shader.SetInt( "texResolution", texResolution);
         shader.SetTexture( circlesHandle, "Result", outputTexture);
+        shader.SetTexture(clearHandle, "Result", outputTexture);
 
         rend.material.SetTexture("_MainTex", outputTexture);
+
+        shader.SetVector("clearColor", clearColor);
+        shader.SetVector("circleColor", circleColor);
+        
     }
  
-    private void DispatchKernel(int count)
+    private void DispatchKernels(int threadsCir)
     {
-        shader.Dispatch(circlesHandle, count, 1, 1);
+        shader.Dispatch(clearHandle, texResolution/8, texResolution/8, 1);
+        shader.Dispatch(circlesHandle, threadsCir, 1, 1);
+        shader.SetFloat("time", Time.deltaTime * animSpeed);
     }
 
     void Update()
     {
-        DispatchKernel(1);
+        DispatchKernels(10);
     }
 }
-

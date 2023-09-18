@@ -45,7 +45,8 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 	uint instanceId = id.x;
 	Boid boid = boidsBuffer[instanceId];
 
-	float velocity = boidSpeed;
+	float noise = clamp(noise1(time/100.0 + boid.noise_offset), -1, 1) * 2.0 -1.0;
+	float velocity = boidSpeed * (1.0 + noise * boidSpeedVariation);
 
 	float3 boid_pos = boid.position;
 	float3 boid_dir = boid.direction;

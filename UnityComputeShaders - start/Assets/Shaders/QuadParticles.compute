@@ -1,7 +1,14 @@
-﻿#pragma kernel CSMain
+﻿#pragma kernel Main
 
  // Particle's data
 struct Particle
+{
+	float3 position;
+	float2 uv;
+	float life;
+};
+// vertex data
+struct Vertex
 {
 	float3 position;
 	float3 velocity;
@@ -10,6 +17,7 @@ struct Particle
 
 // Particle's data, shared with the shader
 RWStructuredBuffer<Particle> particleBuffer;
+RWStructuredBuffer<Vertex> vertexBuffer;
 
 // Variables set from the CPU 
 float deltaTime;
@@ -44,7 +52,7 @@ void respawn(uint id)
 }
 
 [numthreads(256, 1, 1)]
-void CSMain(uint3 id : SV_DispatchThreadID)
+void Main(uint3 id : SV_DispatchThreadID)
 {
 	Particle p = particleBuffer[id.x];
 	
@@ -63,6 +71,39 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 		respawn(id.x);
 		p = particleBuffer[id.x];
 	}
+
+	int index = id.x * 6;
+	//Triangle 1
+	vertexBuffer[index].position.x = p.position.x-halfSize;
+	vertexBuffer[index].position.y = p.position.y-halfSize;
+	vertexBuffer[index].position.z = p.position.z;
+	vertexBuffer[index].life = p.life;
+
+	vertexBuffer[index+1].position.x = p.position.x-halfSize;
+	vertexBuffer[index+1].position.y = p.position.y+halfSize;
+	vertexBuffer[index+1].position.z = p.position.z;
+	vertexBuffer[index+1].life = p.life;
+
+	vertexBuffer[index+2].position.x = p.position.x+halfSize;
+	vertexBuffer[index+2].position.y = p.position.y+halfSize;
+	vertexBuffer[index+2].position.z = p.position.z;
+	vertexBuffer[index+2].life = p.life;
+
+	// Triangle 2
+	vertexBuffer[index+3].position.x = p.position.x-halfSize;
+	vertexBuffer[index+3].position.y = p.position.y-halfSize;
+	vertexBuffer[index+3].position.z = p.position.z;
+	vertexBuffer[index+3].life = p.life;
+
+	vertexBuffer[index+4].position.x = p.position.x+halfSize;
+	vertexBuffer[index+4].position.y = p.position.y+halfSize;
+	vertexBuffer[index+4].position.z = p.position.z;
+	vertexBuffer[index+4].life = p.life;
+
+	vertexBuffer[index+5].position.x = p.position.x+halfSize;
+	vertexBuffer[index+5].position.y = p.position.y-halfSize;
+	vertexBuffer[index+5].position.z = p.position.z;
+	vertexBuffer[index+5].life = p.life;
 }
 
 
